@@ -1,0 +1,9 @@
+{
+  "compileOptions": {
+    "target": "es6", //Usado para informar que vou utilizar o es6
+    "module": "commonjs", //Usado para compilar no padrão commonJS
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"], //Pasta onde quero que ele transpile os arquivos .ts para comomjs
+  "exclude": ["node_modules"] //Não transpilar o node_modules
+}
