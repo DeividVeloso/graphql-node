@@ -1,3 +1,1 @@
-export interface ModelsInterface {
-  User: UserModel;
-}
+export interface ModelsInterface {}
