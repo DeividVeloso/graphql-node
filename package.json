@@ -17,6 +17,7 @@
     "@types/express-graphql": "^0.6.2",
     "@types/graphql": "^14.0.3",
     "@types/node": "^10.12.0",
+    "@types/sequelize": "^4.27.30",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.4.0",
     "gulp-typescript": "^5.0.0-alpha.3",
@@ -27,6 +28,8 @@
     "express": "^4.16.4",
     "express-graphql": "^0.7.1",
     "graphql": "^14.0.2",
-    "graphql-tools": "^4.0.3"
+    "graphql-tools": "^4.0.3",
+    "mysql2": "^1.6.1",
+    "sequelize": "^4.41.0"
   }
 }
