@@ -1,11 +1,10 @@
 {
   "compileOptions": {
-    "outDir": "./dist/",
-    "noImplicitAny": true,
-    "module": "es6",
-    "target": "es5",
-    "jsx": "react",
-    "allowJs": true,
-    "sourceMap": true
-  }
+    "lib": ["es6", "dom", "esnext"],
+    "module": "commonjs",
+    "target": "es6"
+  },
+  "compileOnSave": false,
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }
