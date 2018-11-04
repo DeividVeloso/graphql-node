@@ -75,8 +75,11 @@ export default (
     }
   );
 
-  User.prototype.isPassword(encodedPassword: string, password: string): boolean => {
-      return compareSync(password, encodedPassword);
-  }
+  User.prototype.isPassword = (
+    encodedPassword: string,
+    password: string
+  ): boolean => {
+    return compareSync(password, encodedPassword);
+  };
   return User;
 };
