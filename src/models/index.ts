@@ -12,6 +12,7 @@ let db = null;
 
 if (!db) {
   db = {};
+  console.log("OPA", config);
   const sequelize: Sequelize.Sequelize = new Sequelize(
     config.database,
     config.username,
