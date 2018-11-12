@@ -20,7 +20,7 @@ const postTypes = `
 
 const postQueries = `
     posts(first: Int, offset: Int): [Post!]!
-    posts(id: ID!): Post
+    post(id: ID!): Post
 `;
 
 const postMutations = `
