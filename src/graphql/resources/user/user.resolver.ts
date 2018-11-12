@@ -3,6 +3,20 @@ import { DbConnection } from "../../../interfaces/DbConnectionInterface";
 import { UserInstance } from "../../../models/UserModel";
 import { Transaction } from "sequelize";
 export const userResolver = {
+  Type: {
+    posts: (
+      parent,
+      { first = 10, offset = 0 },
+      { db }: { db: DbConnection },
+      info: GraphQLResolveInfo
+    ) => {
+      return db.Post.findAll({
+        where: { author: parent.get("id") },
+        limit: first,
+        offset: offset
+      });
+    }
+  },
   Query: {
     users: (
       parent,
