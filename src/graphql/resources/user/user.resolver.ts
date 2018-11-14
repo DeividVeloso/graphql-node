@@ -2,6 +2,7 @@ import { GraphQLResolveInfo } from "graphql";
 import { DbConnection } from "../../../interfaces/DbConnectionInterface";
 import { UserInstance } from "../../../models/UserModel";
 import { Transaction } from "sequelize";
+import { handleError } from "../../../utils/handlersServer";
 export const userResolver = {
   Type: {
     posts: (
@@ -14,7 +15,7 @@ export const userResolver = {
         where: { author: parent.get("id") },
         limit: first,
         offset: offset
-      });
+      }).catch(handleError);
     }
   },
   Query: {
@@ -27,7 +28,7 @@ export const userResolver = {
       return db.User.findAll({
         limit: first,
         offset: offset
-      });
+      }).catch(handleError);
     },
     user: (
       parent,
@@ -35,10 +36,13 @@ export const userResolver = {
       { db }: { db: DbConnection },
       info: GraphQLResolveInfo
     ) => {
-      return db.User.find(id).then((user: UserInstance) => {
-        if (!user) throw new Error(`User with id ${id} not found!`);
-        return user;
-      });
+      id = parseInt(id);
+      return db.User.find(id)
+        .then((user: UserInstance) => {
+          if (!user) throw new Error(`User with id ${id} not found!`);
+          return user;
+        })
+        .catch(handleError);
     }
   },
   Mutation: {
@@ -48,9 +52,11 @@ export const userResolver = {
       { db }: { db: DbConnection },
       info: GraphQLResolveInfo
     ) => {
-      return db.sequelize.transaction((t: Transaction) => {
-        return db.User.create(input, { transaction: t });
-      });
+      return db.sequelize
+        .transaction((t: Transaction) => {
+          return db.User.create(input, { transaction: t });
+        })
+        .catch(handleError);
     },
     updateUser: (
       parent,
@@ -59,10 +65,12 @@ export const userResolver = {
       info: GraphQLResolveInfo
     ) => {
       return db.sequelize.transaction((t: Transaction) => {
-        return db.User.findById(id).then((user: UserInstance) => {
-          if (!user) throw new Error(`User with id ${id} not found!`);
-          return user.update(input, { transaction: t });
-        });
+        return db.User.findById(id)
+          .then((user: UserInstance) => {
+            if (!user) throw new Error(`User with id ${id} not found!`);
+            return user.update(input, { transaction: t });
+          })
+          .catch(handleError);
       });
     },
     updateUserPassword: (
@@ -72,16 +80,18 @@ export const userResolver = {
       info: GraphQLResolveInfo
     ) => {
       id = parseInt(id);
-      return db.sequelize.transaction((t: Transaction) => {
-        return db.User.findById(id).then((user: UserInstance) => {
-          if (!user) throw new Error(`User with id ${id} not found!`);
-          return user
-            .update(input, { transaction: t })
-            .then((user: UserInstance) => {
-              return !!user;
-            });
-        });
-      });
+      return db.sequelize
+        .transaction((t: Transaction) => {
+          return db.User.findById(id).then((user: UserInstance) => {
+            if (!user) throw new Error(`User with id ${id} not found!`);
+            return user
+              .update(input, { transaction: t })
+              .then((user: UserInstance) => {
+                return !!user;
+              });
+          });
+        })
+        .catch(handleError);
     },
     deleteUser: (
       parent,
@@ -90,12 +100,14 @@ export const userResolver = {
       info: GraphQLResolveInfo
     ) => {
       id = parseInt(id);
-      return db.sequelize.transaction((t: Transaction) => {
-        return db.User.findById(id).then((user: UserInstance) => {
-          if (!user) throw new Error(`User with id ${id} not found!`);
-          return user.destroy({ transaction: t }).then(user => !!user);
-        });
-      });
+      return db.sequelize
+        .transaction((t: Transaction) => {
+          return db.User.findById(id).then((user: UserInstance) => {
+            if (!user) throw new Error(`User with id ${id} not found!`);
+            return user.destroy({ transaction: t }).then(user => !!user);
+          });
+        })
+        .catch(handleError);
     }
   }
 };
