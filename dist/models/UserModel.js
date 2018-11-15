@@ -39,6 +39,12 @@ exports["default"] = function (sequelize, DataTypes) {
             beforeCreate: function (user, options) {
                 var salt = bcryptjs_1.genSaltSync();
                 user.password = bcryptjs_1.hashSync(user.password, salt);
+            },
+            beforeUpdate: function (user, options) {
+                if (user.changed("password")) {
+                    var salt = bcryptjs_1.genSaltSync();
+                    user.password = bcryptjs_1.hashSync(user.password, salt);
+                }
             }
         }
     });

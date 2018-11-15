@@ -11,7 +11,7 @@ export const postResolvers = {
       { db }: { db: DbConnection },
       info: GraphQLResolveInfo
     ) => {
-      return db.User.findById(post.get("id")).catch(handleError);
+      return db.User.findById(post.get("author")).catch(handleError);
     },
     comments: (
       post,

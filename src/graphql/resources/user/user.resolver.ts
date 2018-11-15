@@ -4,7 +4,7 @@ import { UserInstance } from "../../../models/UserModel";
 import { Transaction } from "sequelize";
 import { handleError } from "../../../utils/handlersServer";
 export const userResolver = {
-  Type: {
+  User: {
     posts: (
       parent,
       { first = 10, offset = 0 },
@@ -37,7 +37,7 @@ export const userResolver = {
       info: GraphQLResolveInfo
     ) => {
       id = parseInt(id);
-      return db.User.find(id)
+      return db.User.findById(id)
         .then((user: UserInstance) => {
           if (!user) throw new Error(`User with id ${id} not found!`);
           return user;

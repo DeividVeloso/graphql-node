@@ -18,7 +18,7 @@ if (!db) {
     })
         .forEach(function (file) {
         var model = sequelize_1["import"](path.join(__dirname, file));
-        db[model["name"]];
+        db[model["name"]] = model;
         //db.User = model;
     });
     Object.keys(db).forEach(function (modelName) {

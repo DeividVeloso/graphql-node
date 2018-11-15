@@ -17,7 +17,7 @@ class App {
       "/graphql",
       (req, res, next) => {
         req["context"] = {};
-        req["context"].db = db;
+        req["context"]["db"] = db;
         next();
       },
       graphqlHTTP(req => ({

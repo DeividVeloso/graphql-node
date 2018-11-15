@@ -6,6 +6,11 @@ var mutation_1 = require("./mutation");
 var user_schema_1 = require("./resources/user/user.schema");
 var post_schema_1 = require("./resources/post/post.schema");
 var comment_schema_1 = require("./resources/comment/comment.schema");
+var lodash_1 = require("lodash");
+var comment_resolver_1 = require("./resources/comment/comment.resolver");
+var post_resolver_1 = require("./resources/post/post.resolver");
+var user_resolver_1 = require("./resources/user/user.resolver");
+var resolvers = lodash_1.merge(comment_resolver_1.commentResolvers, post_resolver_1.postResolvers, user_resolver_1.userResolver);
 var SchemaDefinition = "\n  type Schema {\n    query: Query,\n    mutation: Mutation\n  }\n";
 exports["default"] = graphql_tools_1.makeExecutableSchema({
     typeDefs: [
@@ -15,5 +20,6 @@ exports["default"] = graphql_tools_1.makeExecutableSchema({
         user_schema_1.userTypes,
         post_schema_1.postTypes,
         comment_schema_1.commentTypes
-    ]
+    ],
+    resolvers: resolvers
 });

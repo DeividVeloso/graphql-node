@@ -30,7 +30,7 @@ if (!db) {
     })
     .forEach((file: string) => {
       const model = sequelize.import(path.join(__dirname, file));
-      db[model["name"]];
+      db[model["name"]] = model;
       //db.User = model;
     });
 
