@@ -3,6 +3,9 @@ import { DbConnection } from "../../../interfaces/DbConnectionInterface";
 import { UserInstance } from "../../../models/UserModel";
 import { Transaction } from "sequelize";
 import { handleError } from "../../../utils/handlersServer";
+import { compose } from "../../composable/composable.resolver";
+import { authResolver } from "../../composable/auth.resolver";
+import { verifyTokenResolver } from "../../composable/verify-token.resolver";
 export const userResolver = {
   User: {
     posts: (
@@ -19,17 +22,22 @@ export const userResolver = {
     }
   },
   Query: {
-    users: (
-      parent,
-      { first = 10, offset = 0 },
-      { db }: { db: DbConnection },
-      info: GraphQLResolveInfo
-    ) => {
-      return db.User.findAll({
-        limit: first,
-        offset: offset
-      }).catch(handleError);
-    },
+    users: compose(
+      authResolver,
+      verifyTokenResolver
+    )(
+      (
+        parent,
+        { first = 10, offset = 0 },
+        { db }: { db: DbConnection },
+        info: GraphQLResolveInfo
+      ) => {
+        return db.User.findAll({
+          limit: first,
+          offset: offset
+        }).catch(handleError);
+      }
+    ),
     user: (
       parent,
       { id },

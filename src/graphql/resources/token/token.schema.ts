@@ -1,6 +1,6 @@
 const tokenTypes = `
     type Token {
-        token: string
+        token: String
     }
 `;
 
