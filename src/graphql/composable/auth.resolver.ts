@@ -2,6 +2,7 @@ import { GraphQLFieldResolver } from "graphql";
 
 import { ComposableResolver } from "./composable.resolver";
 import { ResolverContext } from "../../interfaces/ResolverContextInterface";
+import { verifyTokenResolver } from "./verify-token.resolver";
 
 //é uma funcao do tipo composableResolver que é do tipo qualquer coisa e um contexto
 //Que vai receber outra funcao chamada resolver que é do tipo GraphQLFieldResolver
@@ -22,3 +23,5 @@ export const authResolver: ComposableResolver<any, ResolverContext> = (
     throw new Error("Unauthorized Token  not provided");
   };
 };
+
+export const authResolvers = [authResolver, verifyTokenResolver];
