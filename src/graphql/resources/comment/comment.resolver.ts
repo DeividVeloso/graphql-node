@@ -2,25 +2,35 @@ import { DbConnection } from "../../../interfaces/DbConnectionInterface";
 import { GraphQLResolveInfo } from "graphql";
 import { CommentInstance } from "../../../models/CommentModel";
 import { Transaction } from "sequelize";
-import { handleError } from "../../../utils/handlersServer";
+import { handleError, throwError } from "../../../utils/handlersServer";
+import { compose } from "../../composable/composable.resolver";
+import { authResolvers } from "../../composable/auth.resolver";
+import { AuthUser } from "../../../interfaces/AuthUserInterface";
+import { DataLoaders } from "../../../interfaces/DataLoadersInterface";
 
 export const commentResolvers = {
   Comment: {
     user: (
       comment,
       args,
-      { db }: { db: DbConnection },
+      {
+        db,
+        dataloaders: { userLoader }
+      }: { db: DbConnection; dataloaders: DataLoaders },
       info: GraphQLResolveInfo
     ) => {
-      return db.User.findById(comment.get("user")).catch(handleError);
+      return userLoader.load(comment.get("user")).catch(handleError);
     },
     post: (
       comment,
       args,
-      { db }: { db: DbConnection },
+      {
+        db,
+        dataloaders: { postLoader }
+      }: { db: DbConnection; dataloaders: DataLoaders },
       info: GraphQLResolveInfo
     ) => {
-      return db.Post.findById(comment.get("post")).catch(handleError);
+      return postLoader.load(comment.get("post")).catch(handleError);
     }
   },
   Query: {
@@ -39,51 +49,69 @@ export const commentResolvers = {
     }
   },
   Mutation: {
-    createComment: (
-      parent,
-      { input },
-      { db }: { db: DbConnection },
-      info: GraphQLResolveInfo
-    ) => {
-      return db.sequelize
-        .transaction((t: Transaction) => {
-          return db.Comment.create(input, { transaction: t });
-        })
-        .catch(handleError);
-    },
-    updateComment: (
-      parent,
-      { id, input },
-      { db }: { db: DbConnection },
-      info: GraphQLResolveInfo
-    ) => {
-      id = parseInt(id);
-      return db.sequelize
-        .transaction((t: Transaction) => {
-          return db.Comment.findById(id).then((comment: CommentInstance) => {
-            if (!comment) throw new Error(`Comment id ${id} not found`);
-            return comment.update(input, { transaction: t });
-          });
-        })
-        .catch(handleError);
-    },
-    deleteComment: (
-      parent,
-      { id, input },
-      { db }: { db: DbConnection },
-      info: GraphQLResolveInfo
-    ) => {
-      id = parseInt(id);
-      return db.sequelize.transaction((t: Transaction) => {
-        return db.Comment.findById(id)
-          .then((comment: CommentInstance) => {
-            if (!comment) throw new Error(`Comment id ${id} not found`);
-            return comment
-              .destroy({ transaction: t })
-              .then(comment => !!comment);
+    createComment: compose(...authResolvers)(
+      (
+        parent,
+        { input },
+        { db, authUser }: { db: DbConnection; authUser: AuthUser },
+        info: GraphQLResolveInfo
+      ) => {
+        input.user = authUser.id;
+        return db.sequelize
+          .transaction((t: Transaction) => {
+            return db.Comment.create(input, { transaction: t });
           })
           .catch(handleError);
-      });
-    }
+      }
+    ),
+    updateComment: compose(...authResolvers)(
+      (
+        parent,
+        { id, input },
+        { db, authUser }: { db: DbConnection; authUser: AuthUser },
+        info: GraphQLResolveInfo
+      ) => {
+        id = parseInt(id);
+        return db.sequelize
+          .transaction((t: Transaction) => {
+            return db.Comment.findById(id).then((comment: CommentInstance) => {
+              throwError(!comment, `Comment id ${id} not found`);
+              //Só vai deixar atualizar se for o mesmo usuário. Se for diferente lancar o erro
+              throwError(
+                comment.get("user") != authUser.id,
+                `Unauthorized! Yoou cant do this`
+              );
+              input.user = authUser.id;
+              return comment.update(input, { transaction: t });
+            });
+          })
+          .catch(handleError);
+      }
+    ),
+    deleteComment: compose(...authResolvers)(
+      (
+        parent,
+        { id },
+        { db, authUser }: { db: DbConnection; authUser: AuthUser },
+        info: GraphQLResolveInfo
+      ) => {
+        id = parseInt(id);
+        return db.sequelize.transaction((t: Transaction) => {
+          return db.Comment.findById(id)
+            .then((comment: CommentInstance) => {
+              throwError(!comment, `Comment id ${id} not found`);
+              //Só vai deixar atualizar se for o mesmo usuário. Se for diferente lancar o erro
+              throwError(
+                comment.get("user") != authUser.id,
+                `Unauthorized! Yoou cant do this`
+              );
+              return comment
+                .destroy({ transaction: t })
+                .then(comment => !!comment);
+            })
+            .catch(handleError);
+        });
+      }
+    )
   }
 };

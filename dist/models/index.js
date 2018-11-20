@@ -9,7 +9,7 @@ var config = require(path.resolve(__dirname + "./../config/config.json"))[env];
 var db = null;
 if (!db) {
     db = {};
-    var operatorsAliases = false;
+    var operatorsAliases = { $in: Sequelize.Op["in"] };
     config = Object.assign({ operatorsAliases: operatorsAliases }, config);
     var sequelize_1 = new Sequelize(config.database, config.username, config.password, config);
     fs.readdirSync(__dirname)

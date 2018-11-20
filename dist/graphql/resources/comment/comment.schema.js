@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var commentTypes = "\n    type Comment {\n        id: ID!\n        comment: String!\n        createdAt: String!\n        updatedAt: String!\n        user: User!\n        post: Post!\n    }\n\n    input CommentInput {\n        comment: String!\n        post: Int!\n        user: Int!\n    }\n";
+var commentTypes = "\n    type Comment {\n        id: ID!\n        comment: String!\n        createdAt: String!\n        updatedAt: String!\n        user: User!\n        post: Post!\n    }\n\n    input CommentInput {\n        comment: String!\n        post: Int!\n        \n    }\n";
 exports.commentTypes = commentTypes;
 var commentQueries = "\n    commentsByPost(postId: ID!, first: Int, offset: Int): [ Comment! ]!\n";
 exports.commentQueries = commentQueries;
