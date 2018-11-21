@@ -7,6 +7,8 @@ import { compose } from "../../composable/composable.resolver";
 import { authResolvers } from "../../composable/auth.resolver";
 import { AuthUser } from "../../../interfaces/AuthUserInterface";
 import { DataLoaders } from "../../../interfaces/DataLoadersInterface";
+import * as graphqlFields from "graphql-fields";
+
 export const postResolvers = {
   Post: {
     author: (
@@ -40,9 +42,14 @@ export const postResolvers = {
       { db }: { db: DbConnection },
       info: GraphQLResolveInfo
     ) => {
-      return db.Post.findAll({ limit: first, offset: offset }).catch(
-        handleError
-      );
+      const fields = Object.keys(graphqlFields(info));
+      console.log("OPA", fields);
+
+      return db.Post.findAll({
+        limit: first,
+        offset: offset,
+        attributes: fields
+      }).catch(handleError);
     },
     post: (
       parent,
