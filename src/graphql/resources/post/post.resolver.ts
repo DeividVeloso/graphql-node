@@ -7,7 +7,7 @@ import { compose } from "../../composable/composable.resolver";
 import { authResolvers } from "../../composable/auth.resolver";
 import { AuthUser } from "../../../interfaces/AuthUserInterface";
 import { DataLoaders } from "../../../interfaces/DataLoadersInterface";
-import * as graphqlFields from "graphql-fields";
+import { RequestedFields } from "../../ast/RequestedFields";
 
 export const postResolvers = {
   Post: {
@@ -20,18 +20,24 @@ export const postResolvers = {
       }: { db: DbConnection; dataloaders: DataLoaders },
       info: GraphQLResolveInfo
     ) => {
-      return userLoader.load(post.get("author")).catch(handleError);
+      return userLoader
+        .load({ key: post.get("author"), info })
+        .catch(handleError);
     },
     comments: (
       post,
       { first = 10, offset = 0 },
-      { db }: { db: DbConnection },
+      {
+        db,
+        requestedFields
+      }: { db: DbConnection; requestedFields: RequestedFields },
       info: GraphQLResolveInfo
     ) => {
       return db.Comment.findAll({
         where: post.get("id"),
         limit: first,
-        offset: offset
+        offset: offset,
+        attributes: requestedFields.getFields(info)
       }).catch(handleError);
     }
   },
@@ -39,26 +45,37 @@ export const postResolvers = {
     posts: (
       parent,
       { first = 10, offset = 0 },
-      { db }: { db: DbConnection },
+      {
+        db,
+        requestedFields
+      }: { db: DbConnection; requestedFields: RequestedFields },
       info: GraphQLResolveInfo
     ) => {
-      const fields = Object.keys(graphqlFields(info));
-      console.log("OPA", fields);
-
       return db.Post.findAll({
         limit: first,
         offset: offset,
-        attributes: fields
+        attributes: requestedFields.getFields(info, {
+          keep: ["id"],
+          exclude: ["comments"]
+        })
       }).catch(handleError);
     },
     post: (
       parent,
       { id, input },
-      { db }: { db: DbConnection },
+      {
+        db,
+        requestedFields
+      }: { db: DbConnection; requestedFields: RequestedFields },
       info: GraphQLResolveInfo
     ) => {
       id = parseInt(id);
-      return db.Post.findById(id)
+      return db.Post.findById(id, {
+        attributes: requestedFields.getFields(info, {
+          keep: ["id"],
+          exclude: ["comments"]
+        })
+      })
         .then((post: PostInstance) => {
           throwError(!post, `Post id ${id} not found`);
           return post;
