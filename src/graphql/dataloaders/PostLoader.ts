@@ -1,5 +1,5 @@
 import { PostInstance, PostModel } from "../../models/PostModel";
-import { Promise } from "bluebird";
+const Promise = require("bluebird");
 import { DataLoaderParam } from "../../interfaces/DataLoaderParamInterface";
 import { RequestedFields } from "../ast/RequestedFields";
 

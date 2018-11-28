@@ -3,6 +3,7 @@ const chaiHttp = require("chai-http");
 
 import app from "./../src/app";
 import db from "./../src/models";
+const Promise = require("bluebird");
 
 chai.use(chaiHttp);
 const expect = chai.expect;

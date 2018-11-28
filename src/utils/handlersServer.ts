@@ -1,5 +1,5 @@
 import { Server } from "http";
-import { Promise } from "bluebird";
+const Promise = require("bluebird");
 
 export const normalizePort = (
   val: number | string

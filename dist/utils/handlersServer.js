@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var bluebird_1 = require("bluebird");
+var Promise = require("bluebird");
 exports.normalizePort = function (val) {
     var port = typeof val === "string" ? parseInt(val) : val;
     if (isNaN(port))
@@ -40,7 +40,7 @@ exports.onListening = function (server) {
 exports.handleError = function (error) {
     var errorMessage = error.name + ": " + error.message;
     console.log(errorMessage);
-    return bluebird_1.Promise.reject(new Error(errorMessage));
+    return Promise.reject(new Error(errorMessage));
 };
 exports.throwError = function (condition, message) {
     if (condition) {
