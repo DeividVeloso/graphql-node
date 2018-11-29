@@ -24,8 +24,11 @@ if (!db) {
   );
   fs.readdirSync(__dirname)
     .filter((file: string) => {
+      let fileSlice: string = file.slice(-3);
       return (
-        file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js"
+        file.indexOf(".") !== 0 &&
+        file !== basename &&
+        (fileSlice === ".js" || fileSlice === ".ts")
       );
     })
     .forEach((file: string) => {
