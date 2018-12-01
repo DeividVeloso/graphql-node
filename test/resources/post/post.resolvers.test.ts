@@ -89,21 +89,19 @@ describe("Post", () => {
         it("should return a single Post with author", () => {
           let body = {
             query: `
-                query {
-                    getSinglePost($id: ID!) {
-                        post(id: $id) {
-                            title
-                            author {
-                                id
-                                name
-                                email
-                            }
-                            comments {
-                                comment
-                            }
-                        }
-                    }
-                }
+                query getPost($id: ID!) {
+                  post(id: $id) {
+                      title
+                      author {
+                          id
+                          name
+                          email
+                      }
+                      comments {
+                          comment
+                      }
+                  }
+                }              
             `,
             variables: {
               id: postId
@@ -117,9 +115,8 @@ describe("Post", () => {
             .then(res => {
               const post = res.body.data.post;
               expect(res.body.data).to.be.an("object");
-              expect(post).to.be.an("array");
               expect(post).to.not.have.keys(["id", "photo", "createAt"]);
-              expect(post).to.have.keys(["title", "content", "author"]);
+              expect(post).to.have.keys(["title", "author", "comments"]);
               expect(post.title).to.be.equal("First post");
               expect(post.author.name).to.be.equal("Champs");
             })
