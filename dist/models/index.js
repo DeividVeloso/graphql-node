@@ -14,7 +14,10 @@ if (!db) {
     var sequelize_1 = new Sequelize(config.database, config.username, config.password, config);
     fs.readdirSync(__dirname)
         .filter(function (file) {
-        return (file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js");
+        var fileSlice = file.slice(-3);
+        return (file.indexOf(".") !== 0 &&
+            file !== basename &&
+            (fileSlice === ".js" || fileSlice === ".ts"));
     })
         .forEach(function (file) {
         var model = sequelize_1["import"](path.join(__dirname, file));

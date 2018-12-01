@@ -39,7 +39,9 @@ exports.onListening = function (server) {
 };
 exports.handleError = function (error) {
     var errorMessage = error.name + ": " + error.message;
-    console.log(errorMessage);
+    if (process.env.NODE_ENV !== "test") {
+        console.log(errorMessage);
+    }
     return Promise.reject(new Error(errorMessage));
 };
 exports.throwError = function (condition, message) {
