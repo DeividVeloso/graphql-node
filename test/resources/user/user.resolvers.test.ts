@@ -1,7 +1,10 @@
 import { chai, app, db, expect, handleError } from "./../../test-utils";
+import * as jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../../../src/utils/handlersServer";
 
 describe("User", () => {
   let userId: number;
+  let token: string;
   beforeEach(() => {
     return db.Comment.destroy({ where: {} }).then((rows: number) =>
       db.Post.destroy({ where: {} }).then((rows: number) =>
@@ -24,7 +27,7 @@ describe("User", () => {
             }
           ]).then(users => {
             userId = users[0].get("id");
-            //console.log("XXXX", userId);
+            token = jwt.sign({ sub: userId }, JWT_SECRET);
           });
         })
       )
@@ -177,6 +180,166 @@ describe("User", () => {
               expect(res.body.errors[0].message).to.equal(
                 "Error: User with id -1 not found!"
               );
+            })
+            .catch(error => handleError(error));
+        });
+      });
+    });
+  });
+  describe("Mutations", () => {
+    describe("application/json", () => {
+      describe("createUser", () => {
+        it("should create new user", () => {
+          let body = {
+            query: `
+              mutation createNewUser($input: UserCreateInput!) {
+                createUser(input: $input) {
+                  id
+                  name
+                  email
+                }
+              }
+            `,
+            variables: {
+              input: {
+                name: "Drax",
+                email: "drax@guardians.com",
+                password: "1234"
+              }
+            }
+          };
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/json")
+            .send(JSON.stringify(body))
+            .then(res => {
+              const createdUser = res.body.data.createUser;
+              expect(createdUser).to.be.an("object");
+              expect(createdUser.name).to.equal("Drax");
+              expect(createdUser.email).to.equal("drax@guardians.com");
+              expect(parseInt(createdUser.id)).to.be.a("number");
+            })
+            .catch(error => handleError(error));
+        });
+      });
+      describe("updateUser", () => {
+        it("should update a user", () => {
+          let body = {
+            query: `
+              mutation updateUser($input: UserUpdateInput!) {
+                updateUser(input: $input) {
+                  id
+                  name
+                  email
+                  photo
+                }
+              }
+            `,
+            variables: {
+              input: {
+                name: "Josefino",
+                email: "josefino@guardians.com",
+                photo: "https://photo.com"
+              }
+            }
+          };
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send(JSON.stringify(body))
+            .then(res => {
+              const updatedUser = res.body.data.updateUser;
+              expect(updatedUser).to.be.an("object");
+              expect(updatedUser.name).to.equal("Josefino");
+              expect(updatedUser.email).to.equal("josefino@guardians.com");
+              expect(updatedUser.photo).to.be.not.null;
+              expect(parseInt(updatedUser.id)).to.be.a("number");
+            })
+            .catch(error => handleError(error));
+        });
+        it("should block operation if token is invalid", () => {
+          let body = {
+            query: `
+              mutation updateUserExistingUser($input: UserUpdateInput!) {
+                updateUser(input: $input) {
+                  id
+                  name
+                  email
+                  photo
+                }
+              }
+            `,
+            variables: {
+              input: {
+                name: "Josefino",
+                email: "josefino@guardians.com",
+                photo: "https://photo.com"
+              }
+            }
+          };
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/json")
+            .set("authorization", `Bearer INVALID_TOKEN`)
+            .send(JSON.stringify(body))
+            .then(res => {
+              expect(res.body.data.updateUser).to.be.null;
+              expect(res.body).to.have.keys(["data", "errors"]);
+              expect(res.body.errors).to.be.an("array");
+              expect(res.body.errors[0].message).to.equal(
+                "JsonWebTokenError: jwt malformed"
+              );
+            })
+            .catch(error => handleError(error));
+        });
+      });
+      describe("updateUserPassword", () => {
+        it("should update password of an existing User", () => {
+          let body = {
+            query: `
+              mutation updateUserPassword($input: UserUpdatePasswordInput!) {
+                updateUserPassword(input: $input) 
+              }
+            `,
+            variables: {
+              input: {
+                password: "123456"
+              }
+            }
+          };
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send(JSON.stringify(body))
+            .then(res => {
+              expect(res.body.data.updateUserPassword).to.be.true;
+            })
+            .catch(error => handleError(error));
+        });
+      });
+      describe("deleteUser", () => {
+        it("should delete an existing User", () => {
+          let body = {
+            query: `
+              mutation {
+                deleteUser
+              }
+            `
+          };
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send(JSON.stringify(body))
+            .then(res => {
+              expect(res.body.data.deleteUser).to.be.true;
             })
             .catch(error => handleError(error));
         });
