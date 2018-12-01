@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-exports["default"] = function (sequelize, DataTypes) {
+exports["default"] = (function (sequelize, DataTypes) {
     var Post = sequelize.define("Post", {
         id: {
             type: DataTypes.INTEGER,
@@ -33,4 +33,4 @@ exports["default"] = function (sequelize, DataTypes) {
         });
     };
     return Post;
-};
+});

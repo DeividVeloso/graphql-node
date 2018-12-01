@@ -4,7 +4,7 @@ var bcryptjs_1 = require("bcryptjs");
 //Sequelize.Sequelize abre a conexao com o banco de dados
 //SequelizeDataTypes são os tipos que vamos definir par anossa tabela
 //Ele vai retornar uma instancia de UserModel
-exports["default"] = function (sequelize, DataTypes) {
+exports["default"] = (function (sequelize, DataTypes) {
     var User = sequelize.define("User", {
         id: {
             type: DataTypes.INTEGER,
@@ -52,4 +52,4 @@ exports["default"] = function (sequelize, DataTypes) {
         return bcryptjs_1.compareSync(password, encodedPassword);
     };
     return User;
-};
+});
