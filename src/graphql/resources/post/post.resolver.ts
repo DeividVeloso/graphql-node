@@ -8,6 +8,7 @@ import { authResolvers } from "../../composable/auth.resolver";
 import { AuthUser } from "../../../interfaces/AuthUserInterface";
 import { DataLoaders } from "../../../interfaces/DataLoadersInterface";
 import { RequestedFields } from "../../ast/RequestedFields";
+import { ResolverContext } from "../../../interfaces/ResolverContextInterface";
 
 export const postResolvers = {
   Post: {
@@ -27,17 +28,14 @@ export const postResolvers = {
     comments: (
       post,
       { first = 10, offset = 0 },
-      {
-        db,
-        requestedFields
-      }: { db: DbConnection; requestedFields: RequestedFields },
+      context: ResolverContext,
       info: GraphQLResolveInfo
     ) => {
-      return db.Comment.findAll({
-        where: post.get("id"),
+      return context.db.Comment.findAll({
+        where: { post: post.get("id") },
         limit: first,
         offset: offset,
-        attributes: requestedFields.getFields(info)
+        attributes: context.requestedFields.getFields(info)
       }).catch(handleError);
     }
   },
@@ -45,16 +43,13 @@ export const postResolvers = {
     posts: (
       parent,
       { first = 10, offset = 0 },
-      {
-        db,
-        requestedFields
-      }: { db: DbConnection; requestedFields: RequestedFields },
+      context: ResolverContext,
       info: GraphQLResolveInfo
     ) => {
-      return db.Post.findAll({
+      return context.db.Post.findAll({
         limit: first,
         offset: offset,
-        attributes: requestedFields.getFields(info, {
+        attributes: context.requestedFields.getFields(info, {
           keep: ["id"],
           exclude: ["comments"]
         })
@@ -63,15 +58,12 @@ export const postResolvers = {
     post: (
       parent,
       { id, input },
-      {
-        db,
-        requestedFields
-      }: { db: DbConnection; requestedFields: RequestedFields },
+      context: ResolverContext,
       info: GraphQLResolveInfo
     ) => {
       id = parseInt(id);
-      return db.Post.findById(id, {
-        attributes: requestedFields.getFields(info, {
+      return context.db.Post.findById(id, {
+        attributes: context.requestedFields.getFields(info, {
           keep: ["id"],
           exclude: ["comments"]
         })

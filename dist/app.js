@@ -13,8 +13,8 @@ var App = /** @class */ (function () {
         this.init();
     }
     App.prototype.init = function () {
-        this.dataLoaderFactory = new DataLoaderFactory_1.DataLoaderFactory(models_1["default"], this.requestedFields);
         this.requestedFields = new RequestedFields_1.RequestedFields();
+        this.dataLoaderFactory = new DataLoaderFactory_1.DataLoaderFactory(models_1["default"], this.requestedFields);
         this.middleware();
     };
     App.prototype.middleware = function () {
