@@ -264,5 +264,46 @@ describe("Post", () => {
         });
       });
     });
+    describe("application/json", () => {
+      describe("posts", () => {
+        it("should paginate a list of Posts", () => {
+          let query = `
+                query getPostsList($first: Int, $offset: Int) {
+                    posts(first: $first, offset: $offset) {
+                        title
+                        content
+                        photo
+                    }
+                }
+            `;
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/graphql")
+            .send(query)
+            .query({
+              variables: JSON.stringify({
+                first: 2,
+                offset: 1
+              })
+            })
+            .then(res => {
+              const postsList = res.body.data.posts;
+              expect(res.body.data).to.be.an("object");
+              expect(postsList)
+                .to.be.an("array")
+                .with.length(2);
+              expect(postsList[0]).to.not.have.keys([
+                "id",
+                "photo",
+                "createAt"
+              ]);
+              expect(postsList[0]).to.have.keys(["title", "content", "photo"]);
+              expect(postsList[0].title).to.be.equal("Second post");
+            })
+            .catch(error => handleError(error));
+        });
+      });
+    });
   });
 });
