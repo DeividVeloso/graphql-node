@@ -183,6 +183,31 @@ describe("User", () => {
             })
             .catch(error => handleError(error));
         });
+        it("should return the User owner of token", () => {
+          let body = {
+            query: `
+                      query  {
+                        currentUser {
+                              name
+                              email
+                          }
+                      }
+                    `
+          };
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send(JSON.stringify(body))
+            .then(res => {
+              const currentUser = res.body.data.currentUser;
+              expect(currentUser).to.be.an("object");
+              expect(currentUser).to.have.keys(["email", "name"]);
+              expect(currentUser.name).to.equal("Ana Paula");
+            })
+            .catch(error => handleError(error));
+        });
       });
     });
   });
@@ -340,6 +365,26 @@ describe("User", () => {
             .send(JSON.stringify(body))
             .then(res => {
               expect(res.body.data.deleteUser).to.be.true;
+            })
+            .catch(error => handleError(error));
+        });
+        it("should block operation if token not provided", () => {
+          let body = {
+            query: `
+              mutation {
+                deleteUser
+              }
+            `
+          };
+          return chai
+            .request(app)
+            .post("/graphql")
+            .set("content-type", "application/json")
+            .send(JSON.stringify(body))
+            .then(res => {
+              expect(res.body.errors[0].message).to.equal(
+                "Unauthorized Token  not provided"
+              );
             })
             .catch(error => handleError(error));
         });

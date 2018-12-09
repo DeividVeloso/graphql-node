@@ -3,13 +3,17 @@ import { chai, db, app, expect, handleError } from "../../test-utils";
 describe("Token", () => {
   let userId;
   beforeEach(() => {
-    return db.User.destroy({ where: {} }).then(() => {
-      return db.User.create({
-        name: "Ana Paula",
-        email: "aninha@gmail.com",
-        password: "1234"
-      }).then(user => {
-        userId = user.get("id");
+    return db.Comment.destroy({ where: {} }).then((rows: number) => {
+      return db.Post.destroy({ where: {} }).then((rows: number) => {
+        return db.User.destroy({ where: {} }).then(() => {
+          return db.User.create({
+            name: "Ana Paula",
+            email: "aninha@gmail.com",
+            password: "1234"
+          }).then(user => {
+            userId = user.get("id");
+          });
+        });
       });
     });
   });
