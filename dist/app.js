@@ -7,6 +7,9 @@ var models_1 = require("./models");
 var extract_jwt_middleware_1 = require("./middlewares/extract-jwt.middleware");
 var DataLoaderFactory_1 = require("./graphql/dataloaders/DataLoaderFactory");
 var RequestedFields_1 = require("./graphql/ast/RequestedFields");
+var cors = require("cors");
+var compression = require("compression");
+var helmet = require("helmet");
 var App = /** @class */ (function () {
     function App() {
         this.express = express();
@@ -19,6 +22,15 @@ var App = /** @class */ (function () {
     };
     App.prototype.middleware = function () {
         var _this = this;
+        this.express.use(cors({
+            origin: '*',
+            methods: ['GET', 'POST'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Enconding'],
+            preflightContinue: false,
+            optionsSuccessStatus: 204
+        }));
+        this.express.use(compression());
+        this.express.use(helmet());
         this.express.use("/graphql", extract_jwt_middleware_1.extractJwtMiddleware(), function (req, res, next) {
             req["context"]["db"] = models_1["default"];
             req["context"]["dataloaders"] = _this.dataLoaderFactory.getLoaders();
